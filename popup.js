@@ -1,29 +1,17 @@
-// Initialize button with user's preferred color
-let changeColor = document.getElementById("changeColor");
+const quoteButton = document.getElementById("quoteButton");
 
-chrome.storage.sync.get("color", ({ color }) => {
-  changeColor.style.backgroundColor = color;
-});
-
-// When the button is clicked, inject setPageBackgroundColor into current page
-changeColor.addEventListener("click", async () => {
+quoteButton.addEventListener("click", async () => {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: getQuote,
   });
 });
 
-// The body of this function will be executed as a content script inside the
-// current page
-function setPageBackgroundColor() {
-  chrome.storage.sync.get("color", ({ color }) => {
-    document.body.style.backgroundColor = color;
-  });
-}
-
 function getQuote(){
-  //const quote = fetch("https://www.officeapi.dev/api/quotes/random")
-  alert("hello");
+  fetch("https://www.officeapi.dev/api/quotes/random")
+    .then(response => response.json())
+    .then(parsedResponse => {return `${parsedResponse.data.content}\n\n   -${parsedResponse.data.character.firstname} ${parsedResponse.data.character.lastname}`})
+    .then(string => alert(string));
+    // .then(parsedResponse => alert(JSON.stringify(parsedResponse)));
 }
